@@ -37,7 +37,7 @@ c语言开发的开源的NoSQL内存数据库，可以用作数据库、缓存�
   
 - redis支持的数据类型？</br>
 redis是k-v数据库，所支持的数据类型指value的数据类型，常用的有：string、list、hashtable、set、sorted-set等</br>
-redis托管在github上，readme对redis的内部结构做了简单说明</br>
+redis托管在[github](https://github.com/redis/redis/)上，readme对redis的内部结构做了简单说明</br>
   - redis 对应是通过redisObject描述的，如图：![Alt text](https://ask.qcloudimg.com/http-save/yehe-1552241/vu7ihnmfp6.jpeg?imageView2%2F2%2Fw%2F1620)
   - string是二进制安全的，即不带编码格式的纯二进制，可以存对象的序列化串甚至可以存图片，最大可存512M
     - t_string.c实现定义和处理string类型的kv操作
