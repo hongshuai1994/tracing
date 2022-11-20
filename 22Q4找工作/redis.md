@@ -38,13 +38,45 @@ c语言开发的开源的NoSQL内存数据库，可以用作数据库、缓存�
 - redis支持的数据类型？</br>
 redis是k-v数据库，所支持的数据类型指value的数据类型，常用的有：string、list、hashtable、set、sorted-set等</br>
 redis托管在github上，readme对redis的内部结构做了简单说明</br>
+  - redis 对应是通过redisObject描述的，如图：![Alt text](https://ask.qcloudimg.com/http-save/yehe-1552241/vu7ihnmfp6.jpeg?imageView2%2F2%2Fw%2F1620)
+  - string是二进制安全的，即不带编码格式的纯二进制，可以存对象的序列化串甚至可以存图片，最大可存512M
+    - t_string.c实现定义和处理string类型的kv操作
+    - 一个strObj维护一个字节数组，存放实际内容
+  - hashtable：哈希表实现：hget/hset/hgetall等
+  - list：双向链表：lpush/lpop/rpush/rpop/lrang等
+    - 可以当成消息队列用
+  - set：哈希表实现：sadd/spop等
+  - zset：哈希表+跳表实现，跳表存放的是所有成员，带顺序；哈希表存放成员到sore的映射
+  - 不同数据类型的应用场景：![Alt text](https://ask.qcloudimg.com/http-save/yehe-1552241/gdqdvzmzvu.png?imageView2%2F2%2Fw%2F1620)
 
 - redis持久化？是否可以利用redis做持久话存储？</br>
   - redis利用fork创建一个用户持久话的子进程
   - aof.c和rdb.c实现了redis的red和aof持久化
+  - RDB是Redis用来进行持久化的一种方式，是把当前内存中的数据集快照写入磁盘，也就是 Snapshot 快照（数据库中所有键值对数据）。RDB 有两种触发方式，分别是自动触发（redis.conf中配置）和手动触发（save/bgsave）。
+  - RDB 在恢复大数据集时的速度比 AOF 的恢复速度要快
+  - AOF 做持久化，每一个写命令都通过 write 函数追加到 appendonly.aof 中，使用 AOF 的优点是会让 Redis 变得非常耐久。可以设置不同的 Fsync 策略，AOF的默认策略是每秒钟 Fsync 一次，在这种配置下，就算发生故障停机，也最多丢失一秒钟的数据
+  - Redis 支持同时开启 RDB 和 AOF，系统重启后，Redis 会优先使用 AOF 来恢复数据，这样丢失的数据会最少。
 
 - redis分布式锁的实现？</br>
 
 - redis作为消息中间件，如何进行消息的订阅与发布？怎么实现的？</br>
 
 - redis的主从同步是在redis代码上实现的，replication.c完成主从同步的工作</br>
+- 哨兵、master、slave
+
+- 缓存雪崩？穿透？击穿？
+  - 雪崩：Cache avalanche [ˈævəˌlɑːntʃ]（缓存大面积失效）
+    - 过期时间加随机数
+    - 热点数据分布到不同集群
+    - 热点数据永不过期（不设置过期时间），和数据库同步更新
+  - 穿透：Cache penetration [.penə'treɪʃ(ə)n]（指缓存和数据库中都没有的数据，但却产生了数据库的查询）
+    - 增加有效性校验（用户鉴权、参数校验）
+  - 击穿：cache breakdown（热点数据过期瞬间，大量请求因为无缓存打到db，像一个桶上被凿开了一个洞），雪崩是一个面，击穿是一个点
+    - 热点数据永不过期，保持和数据的一致性更新
+    - 或者加上互斥锁（只允许一个请求去db中拿）
+
+- redis单线程为什么这么快？
+  - 完全基于内存
+  - 数据结构简单
+  - 单线程不用频发切换上下文，也不用处理多线程下的各种锁问题
+  - I/O多路复用
