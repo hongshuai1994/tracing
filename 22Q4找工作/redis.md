@@ -80,3 +80,11 @@ redis托管在[github](https://github.com/redis/redis/)上，readme对redis的�
   - 数据结构简单
   - 单线程不用频发切换上下文，也不用处理多线程下的各种锁问题
   - I/O多路复用
+
+- redis集群模式？
+  - 主从复制
+  - 哨兵模式
+  - redis cluster模式
+    - Redis Cluster 采用数据分片机制，定义了 16384个 Slot槽位，集群中的每个Redis 实例负责维护一部分槽以及槽所映射的键值数据。
+    - 客户端可以连接集群中任意一个Redis 实例，发送读写命令，如果当前Redis 实例收到不是自己负责的Slot的请求时，会将该slot所在的正确的Redis 实例地址返回给客户端。
+    - 客户端收到后，自动将原请求重新发到这个新地址，自动操作，外部透明。
